@@ -120,6 +120,34 @@ else
     exit 1
 fi
 
+# Test HTTP connectivity first
+print_status "Testing HTTP connectivity..."
+sleep 10
+
+for domain in admin.azmarif.dev client.azmarif.dev server.azmarif.dev; do
+    if curl -s -o /dev/null -w "%{http_code}" "http://$domain/health" | grep -q "200"; then
+        print_success "✓ $domain is responding"
+    else
+        print_warning "⚠ $domain not responding properly"
+    fi
+done
+
+# Ensure certbot directories exist and have proper permissions
+print_status "Setting up certbot directories..."
+docker-compose exec nginx mkdir -p /var/www/certbot/.well-known/acme-challenge
+docker-compose exec nginx chmod -R 755 /var/www/certbot
+docker-compose exec nginx chown -R nginx:nginx /var/www/certbot
+
+# Test ACME challenge directory
+print_status "Testing ACME challenge directory..."
+for domain in admin.azmarif.dev client.azmarif.dev server.azmarif.dev; do
+    if curl -s "http://$domain/.well-known/acme-challenge/" | grep -q "404\|403" || curl -s -o /dev/null -w "%{http_code}" "http://$domain/.well-known/acme-challenge/" | grep -q "404"; then
+        print_success "✓ $domain ACME challenge path is accessible"
+    else
+        print_warning "⚠ $domain ACME challenge path may have issues"
+    fi
+done
+
 # Get SSL certificates
 print_status "Obtaining SSL certificates..."
 docker-compose run --rm certbot certonly \
@@ -129,6 +157,7 @@ docker-compose run --rm certbot certonly \
     --agree-tos \
     --no-eff-email \
     --force-renewal \
+    --verbose \
     -d admin.azmarif.dev \
     -d client.azmarif.dev \
     -d server.azmarif.dev
