@@ -62,14 +62,18 @@ fi
 
 # Check if containers are running
 echo -e "\n📦 Checking existing containers..."
-if docker ps -q &> /dev/null; then
-    running_containers=$(docker ps --format "table {{.Names}}")
+if command -v docker &> /dev/null && docker info &> /dev/null; then
+    running_containers=$(docker ps --format "{{.Names}}" 2>/dev/null | grep -v '^$' || true)
     if [ -n "$running_containers" ]; then
         print_warning "Some containers are already running:"
-        echo "$running_containers"
+        echo "$running_containers" | while read container; do
+            echo "  - $container"
+        done
     else
         print_status 0 "No containers running (clean state)"
     fi
+else
+    print_warning "Cannot check container status"
 fi
 
 # Check ports
@@ -86,16 +90,40 @@ done
 # Check DNS resolution
 echo -e "\n🌐 Checking DNS resolution..."
 domains=("admin.azmarif.dev" "client.azmarif.dev" "server.azmarif.dev")
+expected_ip="103.213.38.213"
+
 for domain in "${domains[@]}"; do
-    if nslookup $domain &> /dev/null; then
-        ip=$(nslookup $domain | grep "Address:" | tail -1 | awk '{print $2}')
-        if [ "$ip" = "103.213.38.213" ]; then
-            print_status 0 "$domain resolves to correct IP ($ip)"
+    # Try multiple DNS tools
+    resolved_ip=""
+    
+    # Try nslookup first
+    if command -v nslookup &> /dev/null; then
+        resolved_ip=$(nslookup $domain 2>/dev/null | grep -A1 "Name:" | grep "Address:" | awk '{print $2}' | head -1)
+    fi
+    
+    # Try dig if nslookup failed
+    if [ -z "$resolved_ip" ] && command -v dig &> /dev/null; then
+        resolved_ip=$(dig +short $domain 2>/dev/null | head -1)
+    fi
+    
+    # Try host if both failed
+    if [ -z "$resolved_ip" ] && command -v host &> /dev/null; then
+        resolved_ip=$(host $domain 2>/dev/null | grep "has address" | awk '{print $4}' | head -1)
+    fi
+    
+    # Try getent if all DNS tools failed
+    if [ -z "$resolved_ip" ] && command -v getent &> /dev/null; then
+        resolved_ip=$(getent hosts $domain 2>/dev/null | awk '{print $1}' | head -1)
+    fi
+    
+    if [ -n "$resolved_ip" ]; then
+        if [ "$resolved_ip" = "$expected_ip" ]; then
+            print_status 0 "$domain resolves to correct IP ($resolved_ip)"
         else
-            print_warning "$domain resolves to $ip (expected: 103.213.38.213)"
+            print_warning "$domain resolves to $resolved_ip (expected: $expected_ip)"
         fi
     else
-        print_status 1 "$domain DNS resolution failed"
+        print_status 1 "$domain DNS resolution failed (try: ping $domain)"
     fi
 done
 
