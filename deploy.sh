@@ -43,11 +43,23 @@ mkdir -p ssl-certs
 mkdir -p certbot/conf
 mkdir -p certbot/www
 
-# Check if .env file exists
+# Setup environment files if they don't exist
+print_status "Setting up environment files..."
 if [ ! -f .env ]; then
-    print_error ".env file not found! Please create .env file first."
-    exit 1
+    print_status "Creating .env from .env.example..."
+    cp .env.example .env
+    print_warning "Please edit .env file with your configuration before continuing!"
+    read -p "Press Enter after editing .env file..."
 fi
+
+# Setup service environment files
+services=("pickone-admin" "pickone-client" "pickone-server")
+for service in "${services[@]}"; do
+    if [ ! -f "$service/.env" ]; then
+        print_status "Creating $service/.env from .env.example..."
+        cp "$service/.env.example" "$service/.env"
+    fi
+done
 
 print_success "Environment file found."
 
