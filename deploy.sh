@@ -160,21 +160,46 @@ for domain in admin.azmarif.dev client.azmarif.dev server.azmarif.dev; do
     fi
 done
 
-# Get SSL certificates
-print_status "Obtaining SSL certificates..."
+# Get SSL certificates - Safe approach
+print_status "Obtaining SSL certificates (safe mode)..."
+
+# First try with staging to test
+print_status "Testing SSL setup with staging certificates..."
 docker-compose run --rm certbot certonly \
     --webroot \
     --webroot-path=/var/www/certbot \
     --email admin@azmarif.dev \
     --agree-tos \
     --no-eff-email \
-    --force-renewal \
+    --staging \
     --verbose \
-    -d admin.azmarif.dev \
-    -d client.azmarif.dev \
-    -d server.azmarif.dev
+    -d admin.azmarif.dev
 
 if [ $? -eq 0 ]; then
+    print_success "Staging SSL test successful. Getting production certificates..."
+    
+    # Now get production certificates one by one
+    domains=("admin.azmarif.dev" "client.azmarif.dev" "server.azmarif.dev")
+    
+    for domain in "${domains[@]}"; do
+        print_status "Getting SSL certificate for $domain..."
+        docker-compose run --rm certbot certonly \
+            --webroot \
+            --webroot-path=/var/www/certbot \
+            --email admin@azmarif.dev \
+            --agree-tos \
+            --no-eff-email \
+            --force-renewal \
+            --verbose \
+            -d $domain
+        
+        if [ $? -eq 0 ]; then
+            print_success "✓ Certificate obtained for $domain"
+        else
+            print_error "✗ Failed to get certificate for $domain"
+        fi
+    done
+    
     print_success "SSL certificates obtained successfully."
     
     # Restart nginx to use SSL certificates
@@ -183,7 +208,8 @@ if [ $? -eq 0 ]; then
     
     print_success "Nginx restarted with SSL support."
 else
-    print_warning "SSL certificate generation failed. Running in HTTP mode."
+    print_warning "SSL certificate generation failed. Check domain DNS and firewall."
+    print_warning "Running in HTTP mode. You can try SSL setup later with: ./ssl-setup.sh"
 fi
 
 # Run database seed
