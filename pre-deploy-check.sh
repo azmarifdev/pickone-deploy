@@ -28,8 +28,11 @@ files=(
     "nginx.conf"
     ".env.example"
     "pickone-admin/.env.example"
+    "pickone-admin/Dockerfile"
     "pickone-client/.env.example"
+    "pickone-client/Dockerfile"
     "pickone-server/.env.example"
+    "pickone-server/Dockerfile"
 )
 
 for file in "${files[@]}"; do
@@ -76,8 +79,43 @@ else
     print_warning "Cannot check container status"
 fi
 
-# Check ports
-echo -e "\n🔌 Checking ports..."
+# Check required directories
+echo -e "\n📂 Checking required directories..."
+required_dirs=("uploads" "certbot/conf" "certbot/www")
+for dir in "${required_dirs[@]}"; do
+    if [ -d "$dir" ]; then
+        print_status 0 "Directory $dir exists"
+    else
+        print_warning "Directory $dir will be created during deployment"
+    fi
+done
+
+# Check nginx configuration
+echo -e "\n� Checking nginx configuration..."
+if [ -f "nginx.conf" ]; then
+    # Test nginx config syntax (if nginx is available)
+    if command -v nginx &> /dev/null; then
+        if nginx -t -c $(pwd)/nginx.conf &> /dev/null; then
+            print_status 0 "nginx.conf syntax is valid"
+        else
+            print_status 1 "nginx.conf has syntax errors"
+        fi
+    else
+        print_warning "nginx not installed locally - will test in container"
+    fi
+    
+    # Check if all required server blocks exist
+    required_servers=("admin.azmarif.dev" "client.azmarif.dev" "server.azmarif.dev")
+    for server in "${required_servers[@]}"; do
+        if grep -q "server_name $server" nginx.conf; then
+            print_status 0 "nginx config includes $server"
+        else
+            print_status 1 "nginx config missing server block for $server"
+        fi
+    done
+else
+    print_status 1 "nginx.conf not found"
+fi
 ports=(80 443 3000 4000 5000 27017)
 for port in "${ports[@]}"; do
     if lsof -i :$port &> /dev/null; then

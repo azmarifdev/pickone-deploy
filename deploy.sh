@@ -132,23 +132,37 @@ else
     exit 1
 fi
 
-# Test HTTP connectivity first
-print_status "Testing HTTP connectivity..."
+# Test HTTPS connectivity after SSL setup
+print_status "Testing HTTPS connectivity..."
 sleep 10
 
 for domain in admin.azmarif.dev client.azmarif.dev server.azmarif.dev; do
-    if curl -s -o /dev/null -w "%{http_code}" "http://$domain/health" | grep -q "200"; then
-        print_success "✓ $domain is responding"
+    # Test HTTPS
+    if curl -s --max-time 10 -k "https://$domain/health" &>/dev/null; then
+        print_success "✓ HTTPS: $domain is responding"
     else
-        print_warning "⚠ $domain not responding properly"
+        print_warning "⚠ HTTPS: $domain not responding (may still be starting)"
+    fi
+    
+    # Test HTTP redirect
+    if curl -s --max-time 10 -I "http://$domain" | grep -q "301\|302"; then
+        print_success "✓ HTTP→HTTPS redirect working for $domain"
+    else
+        print_warning "⚠ HTTP→HTTPS redirect may not be working for $domain"
     fi
 done
 
 # Ensure certbot directories exist and have proper permissions
 print_status "Setting up certbot directories..."
+mkdir -p certbot/conf certbot/www
 docker-compose exec nginx mkdir -p /var/www/certbot/.well-known/acme-challenge
 docker-compose exec nginx chmod -R 755 /var/www/certbot
-docker-compose exec nginx chown -R nginx:nginx /var/www/certbot
+docker-compose exec nginx chown -R www-data:www-data /var/www/certbot || docker-compose exec nginx chown -R nginx:nginx /var/www/certbot
+
+# Ensure uploads directory exists
+print_status "Setting up uploads directory..."
+mkdir -p uploads
+chmod 755 uploads
 
 # Test ACME challenge directory
 print_status "Testing ACME challenge directory..."
@@ -160,56 +174,96 @@ for domain in admin.azmarif.dev client.azmarif.dev server.azmarif.dev; do
     fi
 done
 
+# SSL Prerequisites Check
+print_status "Checking SSL prerequisites..."
+ssl_ready=true
+
+for domain in admin.azmarif.dev client.azmarif.dev server.azmarif.dev; do
+    # Check DNS resolution
+    resolved_ip=$(dig +short $domain 2>/dev/null | head -1 || nslookup $domain 2>/dev/null | grep -A1 "Name:" | grep "Address:" | awk '{print $2}' | head -1 || echo "")
+    expected_ip="103.213.38.213"
+    
+    if [ "$resolved_ip" = "$expected_ip" ]; then
+        print_success "✓ DNS: $domain → $resolved_ip"
+    else
+        print_warning "⚠ DNS: $domain → $resolved_ip (expected: $expected_ip)"
+        ssl_ready=false
+    fi
+    
+    # Check HTTP connectivity  
+    if curl -s --max-time 10 "http://$domain/health" &>/dev/null; then
+        print_success "✓ HTTP: $domain is reachable"
+    else
+        print_warning "⚠ HTTP: $domain is not reachable"
+        ssl_ready=false
+    fi
+done
+
+if [ "$ssl_ready" = false ]; then
+    print_warning "SSL prerequisites not met. Will try anyway but may fail."
+    print_warning "You can run './ssl-setup.sh' later after fixing DNS/connectivity issues."
+fi
+
 # Get SSL certificates - Safe approach
-print_status "Obtaining SSL certificates (safe mode)..."
+print_status "Obtaining SSL certificates..."
 
-# First try with staging to test
-print_status "Testing SSL setup with staging certificates..."
-docker-compose run --rm certbot certonly \
-    --webroot \
-    --webroot-path=/var/www/certbot \
-    --email admin@azmarif.dev \
-    --agree-tos \
-    --no-eff-email \
-    --staging \
-    --verbose \
-    -d admin.azmarif.dev
+# Check if certificates already exist
+cert_exists=false
+for domain in admin.azmarif.dev client.azmarif.dev server.azmarif.dev; do
+    if [ -f "certbot/conf/live/$domain/fullchain.pem" ]; then
+        print_success "Certificate for $domain already exists"
+        cert_exists=true
+    fi
+done
 
-if [ $? -eq 0 ]; then
-    print_success "Staging SSL test successful. Getting production certificates..."
+if [ "$cert_exists" = false ]; then
+    print_status "No existing certificates found. Getting new certificates..."
     
-    # Now get production certificates one by one
-    domains=("admin.azmarif.dev" "client.azmarif.dev" "server.azmarif.dev")
-    
-    for domain in "${domains[@]}"; do
-        print_status "Getting SSL certificate for $domain..."
+    # First try with dry-run to test
+    print_status "Testing SSL setup with dry-run..."
+    docker-compose run --rm certbot certonly \
+        --webroot \
+        --webroot-path=/var/www/certbot \
+        --email admin@azmarif.dev \
+        --agree-tos \
+        --no-eff-email \
+        --dry-run \
+        -d admin.azmarif.dev \
+        -d client.azmarif.dev \
+        -d server.azmarif.dev
+
+    if [ $? -eq 0 ]; then
+        print_success "Dry-run successful. Getting production certificates..."
+        
+        # Get production certificates
         docker-compose run --rm certbot certonly \
             --webroot \
             --webroot-path=/var/www/certbot \
             --email admin@azmarif.dev \
             --agree-tos \
             --no-eff-email \
-            --force-renewal \
-            --verbose \
-            -d $domain
+            -d admin.azmarif.dev \
+            -d client.azmarif.dev \
+            -d server.azmarif.dev
         
         if [ $? -eq 0 ]; then
-            print_success "✓ Certificate obtained for $domain"
+            print_success "SSL certificates obtained successfully."
+            
+            # Restart nginx to use SSL certificates
+            print_status "Restarting nginx with SSL..."
+            docker-compose restart nginx
+            
+            print_success "Nginx restarted with SSL support."
         else
-            print_error "✗ Failed to get certificate for $domain"
+            print_error "Failed to obtain SSL certificates"
         fi
-    done
-    
-    print_success "SSL certificates obtained successfully."
-    
-    # Restart nginx to use SSL certificates
-    print_status "Restarting nginx with SSL..."
-    docker-compose restart nginx
-    
-    print_success "Nginx restarted with SSL support."
+    else
+        print_warning "SSL dry-run failed. Check domain DNS and firewall."
+        print_warning "Running in HTTP mode. You can try SSL setup later with: ./ssl-setup.sh"
+    fi
 else
-    print_warning "SSL certificate generation failed. Check domain DNS and firewall."
-    print_warning "Running in HTTP mode. You can try SSL setup later with: ./ssl-setup.sh"
+    print_success "Using existing SSL certificates."
+    docker-compose restart nginx
 fi
 
 # Run database seed

@@ -12,7 +12,37 @@ The project uses 3 domains:
 
 All domains should point to VPS IP: `103.213.38.213`
 
-## 📋 Prerequisites
+## � Quick Deployment
+
+### 1. Pre-deployment Check
+
+```bash
+# Check system requirements and configuration
+./pre-deploy-check.sh
+```
+
+### 2. Deploy Application
+
+```bash
+# Deploy with automatic SSL setup
+./deploy.sh
+```
+
+### 3. Health Check
+
+```bash
+# Verify all services are running
+./health-check.sh
+```
+
+### 4. SSL Management
+
+```bash
+# Renew SSL certificates (automated via cron)
+./ssl-renew.sh
+```
+
+## �📋 Prerequisites
 
 -   VPS with Ubuntu/Linux
 -   Docker & Docker Compose installed
