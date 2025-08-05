@@ -37,6 +37,7 @@ app.options('*', cors(corsOptionsDelegate));
 // Parse cookies and JSON body
 app.use(cookieParser());
 app.use(express.json({ limit: '100mb' }));
+app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 app.use(
    express.urlencoded({
       extended: true,
