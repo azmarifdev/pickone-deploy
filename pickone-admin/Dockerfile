@@ -1,8 +1,16 @@
 FROM node:22.0-alpine 
-WORKDIR /src
-COPY package*.json ./
 
+WORKDIR /src
+
+# Build arguments for Next.js environment variables
+ARG NEXT_PUBLIC_BASE_URL=https://server.azmarif.dev
+
+# Set environment variables for build
+ENV NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL
+
+COPY package*.json ./
 COPY . .
+
 RUN npm install
 
 # Build the app with standalone output

@@ -6,6 +6,10 @@ services:
         build:
             context: ./pickone-client
             dockerfile: Dockerfile
+            args:
+                NEXT_PUBLIC_BASE_URL: https://server.azmarif.dev
+                NEXT_PUBLIC_GTM_ID: GTM-T6788FFC
+                NEXT_PUBLIC_META_PIXEL_ID: 996938129264024
         ports:
             - '4000:4000'
         env_file:
@@ -44,6 +48,8 @@ services:
         build:
             context: ./pickone-admin
             dockerfile: Dockerfile
+            args:
+                NEXT_PUBLIC_BASE_URL: https://server.azmarif.dev
         ports:
             - '3000:3000'
         env_file:
