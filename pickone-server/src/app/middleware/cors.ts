@@ -6,22 +6,26 @@ const origins = [
    'http://localhost:3001',
    'http://localhost:4000',
    'http://localhost:5000',
-   'https://admin-frontend-xi-ten.vercel.app',
-   'https://pickone-client-site.vercel.app',
-   // Development server
+
+   // Development IPs
    'http://103.213.38.213',
    'http://103.213.38.213:3000',
    'http://103.213.38.213:4000',
    'http://103.213.38.213:5000',
-   'http://103.213.38.213:80',
+
+   // Vercel preview/staging
+   'https://admin-frontend-xi-ten.vercel.app',
+   'https://pickone-client-site.vercel.app',
+
+   // Production domains
    'https://admin.azmarif.dev',
    'https://client.azmarif.dev',
-   'https://server.pickone.dev',
+   'https://server.azmarif.dev', // <-- ✅ add if used
+
    'https://admin.ekhonikinbo.com',
-   'https://client.ekhonikinbo.com',
+   'https://ekhonikinbo.com',
    'https://server.ekhonikinbo.com',
 ];
-
 export const corsOptionsDelegate = function (
    req: Request,
    callback: (err: Error | null, options?: CorsOptions) => void
