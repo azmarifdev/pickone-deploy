@@ -45,7 +45,13 @@ const uploadManyFile = async (
 };
 
 const deleteSingleFile = async (url: string): Promise<void> => {
-   const filePath = path.join(__dirname, '../../', url);
+   // Extract relative path from full URL
+   // e.g., "https://server.azmarif.dev/server-tmp/products/file.png" → "products/file.png"
+   const urlObj = new URL(url);
+   const relativePath = urlObj.pathname.replace('/server-tmp/', '');
+
+   // Build actual file path in /tmp
+   const filePath = path.join('/tmp', relativePath);
 
    if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);

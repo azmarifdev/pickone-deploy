@@ -36,7 +36,6 @@ services:
             - /app/node_modules
             - /app/dist
             - server-tmp:/tmp
-            - ./server-tmp:/app/server-tmp
         env_file:
             - .env
         networks:

@@ -7,29 +7,8 @@ import { globalErrorHandler } from './app/middleware/globalErrorHandler';
 import { trackPageView } from './app/middleware/fbConversionTracker';
 import routes from './app/routes';
 
-import fs from 'fs';
-import path from 'path';
-
 const app: Application = express();
 
-// Replace your static serving with this more robust version
-app.use('/tmp', (req, res, next) => {
-   const filePath = path.join('/tmp', req.path.replace(/^\/tmp\//, ''));
-
-   fs.promises
-      .access(filePath, fs.constants.F_OK)
-      .then(() => {
-         res.sendFile(filePath, {
-            headers: {
-               'Cache-Control': 'public, max-age=300',
-            },
-         });
-      })
-      .catch(() => {
-         // File not found - proceed to 404 handler
-         next();
-      });
-});
 // Enable CORS
 app.use(cors(corsOptionsDelegate));
 app.options('*', cors(corsOptionsDelegate));
@@ -52,6 +31,15 @@ app.use(trackPageView);
 // application routes
 app.get('/', (req: Request, res: Response) => {
    res.send('Server is running');
+});
+
+// Health check endpoint for nginx
+app.get('/health', (req: Request, res: Response) => {
+   res.status(200).json({
+      success: true,
+      message: 'Server is healthy',
+      timestamp: new Date().toISOString(),
+   });
 });
 
 // use routes

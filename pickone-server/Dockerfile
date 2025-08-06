@@ -14,14 +14,13 @@ RUN npm install
 # Copy all source code
 COPY . .
 
-# ✅ Create necessary directories for file uploads (including /tmp/tmp/products)
+# ✅ Create necessary directories for file uploads
 RUN mkdir -p \
     /tmp/user \
     /tmp/products \
     /tmp/description-blocks \
-    /tmp/reviews \
+    /tmp/review \
     /app/uploads \
-    /tmp/tmp/products \
     && chmod -R 755 /tmp /app/uploads
 
 # Compile TypeScript to JavaScript
