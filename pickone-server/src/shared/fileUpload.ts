@@ -32,8 +32,8 @@ const uploadSingleFile = async (
    // Write file
    await fs.promises.writeFile(localPath, file.buffer);
 
-   // Return URL that matches your static route
-   return `${config.local_file_url}tmp/${folder}/${filename}`;
+   // Return URL that matches nginx static route (/server-tmp/)
+   return `${config.local_file_url}server-tmp/${folder}/${filename}`;
 };
 
 const uploadManyFile = async (
