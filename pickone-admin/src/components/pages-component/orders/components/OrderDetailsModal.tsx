@@ -21,6 +21,7 @@ import {
     FiTruck,
 } from 'react-icons/fi';
 import Image from 'next/image';
+import { getImageUrl } from '@/lib/imageUtils';
 
 interface Product {
     _id: string;
@@ -275,7 +276,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                         {/* Product Image */}
                                         <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200">
                                             <Image
-                                                src={item?.product?.thumbnail || '/placeholder.svg'}
+                                                src={getImageUrl(item?.product?.thumbnail) || '/placeholder.svg'}
                                                 alt={item?.product?.title}
                                                 width={64}
                                                 height={64}

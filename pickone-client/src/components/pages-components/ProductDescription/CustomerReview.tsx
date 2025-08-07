@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { Review } from '@/app/product/types';
+import { getImageUrl } from '@/lib/imageUtils';
 
 const CustomerReview: React.FC<Review> = ({ name, message, rating, images, createdAt }) => {
     const [activeImage, setActiveImage] = useState<string | null>(null);
@@ -52,7 +53,7 @@ const CustomerReview: React.FC<Review> = ({ name, message, rating, images, creat
                                 className="relative group cursor-pointer rounded-lg overflow-hidden"
                                 onClick={() => setActiveImage(image)}>
                                 <Image
-                                    src={image}
+                                    src={getImageUrl(image)}
                                     alt={`Review image ${index + 1}`}
                                     width={200}
                                     height={200}
@@ -72,7 +73,7 @@ const CustomerReview: React.FC<Review> = ({ name, message, rating, images, creat
                     onClick={() => setActiveImage(null)}>
                     <div className="relative max-w-3xl max-h-full">
                         <Image
-                            src={activeImage}
+                            src={getImageUrl(activeImage)}
                             alt="Review image full view"
                             width={800}
                             height={800}

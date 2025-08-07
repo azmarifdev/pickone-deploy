@@ -6,6 +6,7 @@ import ReviewsTab from './ProductDescription/ReviewsTab';
 import { Product } from '@/app/product/types';
 import ProductDetailsTabContent from './ProductDescription/ProductDetailsTabContent';
 import ConvertHtml from '@/components/reusable/ConvertHtml';
+import { getImageUrl } from '@/lib/imageUtils';
 
 type TabType = 'details' | 'specs' | 'reviews';
 
@@ -104,7 +105,7 @@ const ProductDescription = ({ product }: { product: Product }) => {
                             <div className="relative rounded-lg overflow-hidden bg-gray-50 h-56 md:h-80 w-full md:w-4/5 lg:w-3/4 border border-gray-100">
                                 <Image
                                     key={`img-${block._id || `block-${index}`}`}
-                                    src={block.url}
+                                    src={getImageUrl(block.url)}
                                     alt={`${product.title} description image ${index + 1}`}
                                     fill
                                     className="object-contain"

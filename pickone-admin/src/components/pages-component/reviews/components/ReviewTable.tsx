@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { Switch } from '@/components/ui/switch';
 import { useTogglePublishMutation } from '@/redux/api/reviewApi';
 import { FiEye, FiCheck, FiX, FiTrash2, FiStar } from 'react-icons/fi';
+import { getImageUrl } from '@/lib/imageUtils';
 
 interface ReviewTableProps {
     data: any[];
@@ -103,7 +104,10 @@ const ReviewTable = ({ data, handleAction }: ReviewTableProps) => {
                                     <div className="flex items-center gap-3">
                                         <div className="relative">
                                             <Image
-                                                src={review?.product_id?.thumbnail || 'https://placehold.co/50x50'}
+                                                src={
+                                                    getImageUrl(review?.product_id?.thumbnail) ||
+                                                    'https://placehold.co/50x50'
+                                                }
                                                 alt={review?.product_id?.title}
                                                 width={48}
                                                 height={48}

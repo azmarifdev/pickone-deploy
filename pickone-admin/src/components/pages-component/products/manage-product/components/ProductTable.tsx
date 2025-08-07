@@ -7,6 +7,7 @@ import { FiEye, FiEdit, FiTrash2, FiPackage } from 'react-icons/fi';
 import { useDeleteProductMutation, useTogglePublishMutation } from '@/redux/api/productApi';
 import { useRouter } from 'next/navigation';
 import DeleteConfirmDialog from '@/components/pages-component/category/DeleteConfirmDialog';
+import { getImageUrl } from '@/lib/imageUtils';
 
 const ProductTable = ({ data }: { data: any[] }) => {
     const [togglePublish] = useTogglePublishMutation();
@@ -59,7 +60,7 @@ const ProductTable = ({ data }: { data: any[] }) => {
                                     <div className="flex-shrink-0 w-12 h-12">
                                         {product?.images?.[0] ? (
                                             <Image
-                                                src={product.images[0]}
+                                                src={getImageUrl(product.images[0])}
                                                 alt={product.title}
                                                 width={48}
                                                 height={48}

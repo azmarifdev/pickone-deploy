@@ -1,16 +1,13 @@
-"use client";
+'use client';
 
-import {useRef, useState, ChangeEvent} from "react";
-import Image from "next/image";
-import {FaImage, FaTimes, FaUpload} from "react-icons/fa";
-import {Button} from "@/components/ui/button";
-import {SectionTitle} from "../../add-product/components/section-title";
-import {
-    useRemoveImageMutation,
-    useUpdateImagesMutation,
-    useUpdateThumbnailMutation,
-} from "@/redux/api/productApi";
-import toast from "react-hot-toast";
+import { useRef, useState, ChangeEvent } from 'react';
+import Image from 'next/image';
+import { FaImage, FaTimes, FaUpload } from 'react-icons/fa';
+import { Button } from '@/components/ui/button';
+import { SectionTitle } from '../../add-product/components/section-title';
+import { getImageUrl } from '@/lib/imageUtils';
+import { useRemoveImageMutation, useUpdateImagesMutation, useUpdateThumbnailMutation } from '@/redux/api/productApi';
+import toast from 'react-hot-toast';
 
 interface ImageObj {
     _id: string; // For existing images from DB
@@ -26,13 +23,7 @@ interface MediaSectionProps {
     onNext?: () => void;
 }
 
-export function MediaSection({
-    existingThumbnail,
-    existingImages,
-    productId,
-    onPrev,
-    onNext,
-}: MediaSectionProps) {
+export function MediaSection({ existingThumbnail, existingImages, productId, onPrev, onNext }: MediaSectionProps) {
     // State for thumbnail
     const [thumbnail, setThumbnail] = useState<{
         url: string;
@@ -43,11 +34,8 @@ export function MediaSection({
     });
 
     // State for product images
-    const [productImages, setProductImages] =
-        useState<ImageObj[]>(existingImages);
-    const [previewImages, setPreviewImages] = useState<
-        {url: string; file: File; id: string}[]
-    >([]);
+    const [productImages, setProductImages] = useState<ImageObj[]>(existingImages);
+    const [previewImages, setPreviewImages] = useState<{ url: string; file: File; id: string }[]>([]);
 
     // Refs for file inputs
     const thumbnailRef = useRef<HTMLInputElement>(null);
@@ -75,7 +63,7 @@ export function MediaSection({
 
         try {
             const formData = new FormData();
-            formData.append("thumbnail", thumbnail.file);
+            formData.append('thumbnail', thumbnail.file);
 
             const response = await updateThumbnail({
                 id: productId,
@@ -83,15 +71,15 @@ export function MediaSection({
             }).unwrap();
 
             if (response.success) {
-                toast.success("Thumbnail updated successfully");
+                toast.success('Thumbnail updated successfully');
                 setThumbnail((prev) => ({
                     url: response.data.thumbnailUrl || prev.url,
                     file: null,
                 }));
             }
         } catch (error) {
-            toast.error("Failed to update thumbnail");
-            console.error("Thumbnail update error:", error);
+            toast.error('Failed to update thumbnail');
+            console.error('Thumbnail update error:', error);
         }
     };
 
@@ -115,7 +103,7 @@ export function MediaSection({
         try {
             const formData = new FormData();
             previewImages.forEach((img) => {
-                formData.append("images", img.file);
+                formData.append('images', img.file);
             });
 
             const response = await updateImages({
@@ -124,7 +112,7 @@ export function MediaSection({
             }).unwrap();
 
             if (response.success) {
-                toast.success("Images uploaded successfully");
+                toast.success('Images uploaded successfully');
                 // Add the new images to the product images list
                 const newImages = response.data.images.map((img: any) => ({
                     url: img.url,
@@ -136,21 +124,16 @@ export function MediaSection({
                 setPreviewImages([]);
             }
         } catch (error) {
-            toast.error("Failed to upload images");
-            console.error("Image upload error:", error);
+            toast.error('Failed to upload images');
+            console.error('Image upload error:', error);
         }
     };
 
     // Remove specific image
-    const handleRemoveImage = async (
-        identifier: string,
-        isPreview: boolean
-    ) => {
+    const handleRemoveImage = async (identifier: string, isPreview: boolean) => {
         if (isPreview) {
             // Remove preview image from state
-            setPreviewImages((prev) =>
-                prev.filter((img) => img.id !== identifier)
-            );
+            setPreviewImages((prev) => prev.filter((img) => img.id !== identifier));
             return;
         }
 
@@ -159,15 +142,13 @@ export function MediaSection({
             const response = await removeImage(identifier).unwrap();
 
             if (response.success) {
-                toast.success("Image removed successfully");
+                toast.success('Image removed successfully');
                 // Remove the image from the product images state
-                setProductImages((prev) =>
-                    prev.filter((img) => img._id !== identifier)
-                );
+                setProductImages((prev) => prev.filter((img) => img._id !== identifier));
             }
         } catch (error) {
-            toast.error("Failed to remove image");
-            console.error("Image removal error:", error);
+            toast.error('Failed to remove image');
+            console.error('Image removal error:', error);
         }
     };
 
@@ -178,15 +159,13 @@ export function MediaSection({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Thumbnail Section */}
                 <div>
-                    <label className="block text-gray-700 mb-2 font-medium">
-                        Thumbnail Image
-                    </label>
+                    <label className="block text-gray-700 mb-2 font-medium">Thumbnail Image</label>
                     <div
                         onClick={() => thumbnailRef.current?.click()}
                         className="cursor-pointer border-dashed border-2 border-gray-300 p-4 rounded-md flex justify-center items-center min-h-[200px]">
                         {thumbnail.url ? (
                             <Image
-                                src={thumbnail.url}
+                                src={getImageUrl(thumbnail.url)}
                                 width={200}
                                 height={200}
                                 className="max-h-40 object-contain"
@@ -205,21 +184,15 @@ export function MediaSection({
                     />
                     {thumbnail.file && (
                         <div className="mt-4">
-                            <Button onClick={updateThumbnailHandler}>
-                                Upload Thumbnail
-                            </Button>
-                            <p className="mt-2 text-sm text-gray-500">
-                                Selected: {thumbnail.file.name}
-                            </p>
+                            <Button onClick={updateThumbnailHandler}>Upload Thumbnail</Button>
+                            <p className="mt-2 text-sm text-gray-500">Selected: {thumbnail.file.name}</p>
                         </div>
                     )}
                 </div>
 
                 {/* Product Images Section */}
                 <div>
-                    <label className="block text-gray-700 mb-2 font-medium">
-                        Product Images
-                    </label>
+                    <label className="block text-gray-700 mb-2 font-medium">Product Images</label>
                     <div
                         onClick={() => imageRef.current?.click()}
                         className="cursor-pointer border-dashed border-2 border-gray-300 p-4 rounded-md flex flex-col items-center justify-center min-h-[200px]">
@@ -241,27 +214,21 @@ export function MediaSection({
             {previewImages.length > 0 && (
                 <div className="mt-6">
                     <div className="flex justify-between items-center mb-2">
-                        <h4 className="text-sm font-semibold text-gray-700">
-                            New Images (Preview)
-                        </h4>
-                        <Button onClick={handleUploadImages}>
-                            Upload All ({previewImages.length})
-                        </Button>
+                        <h4 className="text-sm font-semibold text-gray-700">New Images (Preview)</h4>
+                        <Button onClick={handleUploadImages}>Upload All ({previewImages.length})</Button>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                         {previewImages.map((img) => (
                             <div key={img.id} className="relative group">
                                 <Image
-                                    src={img.url}
+                                    src={getImageUrl(img.url)}
                                     width={200}
                                     height={200}
                                     className="w-full h-32 object-contain bg-gray-50 border rounded-md"
                                     alt={`preview-${img.id}`}
                                 />
                                 <button
-                                    onClick={() =>
-                                        handleRemoveImage(img.id, true)
-                                    }
+                                    onClick={() => handleRemoveImage(img.id, true)}
                                     className="absolute top-1 right-1 bg-red-100 text-red-500 hover:text-red-700 p-1 rounded-full shadow-sm">
                                     <FaTimes size={14} />
                                 </button>
@@ -274,23 +241,19 @@ export function MediaSection({
             {/* Existing Images Section */}
             {productImages.length > 0 && (
                 <div className="mt-6">
-                    <h4 className="text-sm font-semibold text-gray-700 mb-2">
-                        Image Gallery
-                    </h4>
+                    <h4 className="text-sm font-semibold text-gray-700 mb-2">Image Gallery</h4>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                         {productImages.map((img) => (
                             <div key={img._id} className="relative group">
                                 <Image
-                                    src={img.url}
+                                    src={getImageUrl(img.url)}
                                     width={200}
                                     height={200}
                                     className="w-full h-32 object-contain bg-gray-50 border rounded-md"
                                     alt={`img-${img._id}`}
                                 />
                                 <button
-                                    onClick={() =>
-                                        handleRemoveImage(img._id, false)
-                                    }
+                                    onClick={() => handleRemoveImage(img._id, false)}
                                     className="absolute top-1 right-1 bg-red-100 text-red-500 hover:text-red-700 p-1 rounded-full shadow-sm">
                                     <FaTimes size={14} />
                                 </button>

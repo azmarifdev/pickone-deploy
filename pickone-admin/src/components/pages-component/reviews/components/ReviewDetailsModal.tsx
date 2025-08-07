@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import { FiStar, FiUser, FiCalendar, FiMessageCircle, FiImage, FiX } from 'react-icons/fi';
+import { getImageUrl } from '@/lib/imageUtils';
 
 interface ReviewDetailsModalProps {
     isOpen: boolean;
@@ -80,7 +81,7 @@ const ReviewDetailsModal: React.FC<ReviewDetailsModalProps> = ({ isOpen, onClose
                             <div className="flex items-center gap-4">
                                 <div className="relative">
                                     <Image
-                                        src={review.product_id?.thumbnail || 'https://placehold.co/100x100'}
+                                        src={getImageUrl(review.product_id?.thumbnail) || 'https://placehold.co/100x100'}
                                         alt={review.product_id?.title}
                                         width={80}
                                         height={80}
@@ -187,7 +188,7 @@ const ReviewDetailsModal: React.FC<ReviewDetailsModalProps> = ({ isOpen, onClose
                                     {review.images.map((image: string, index: number) => (
                                         <div key={index} className="relative group">
                                             <Image
-                                                src={image}
+                                                src={getImageUrl(image)}
                                                 alt={`Review Image ${index + 1}`}
                                                 width={150}
                                                 height={150}

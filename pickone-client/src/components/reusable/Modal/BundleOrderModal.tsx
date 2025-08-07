@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { calculatePrice } from '@/lib/calculatePrice';
 import { config } from '@/config/env';
+import { getImageUrl } from '@/lib/imageUtils';
 
 interface BundleProduct {
     id: string;
@@ -155,7 +156,7 @@ const BundleOrderModal: React.FC<BundleOrderModalProps> = ({
                         <div className="flex items-center">
                             <div className="relative h-16 w-16 bg-white rounded-md overflow-hidden flex-shrink-0 border border-gray-200 shadow-sm">
                                 <Image
-                                    src={mainProduct.thumbnail || '/placeholder.jpg'}
+                                    src={getImageUrl(mainProduct.thumbnail) || '/placeholder.jpg'}
                                     alt={mainProduct.title}
                                     fill
                                     className="object-cover"
@@ -206,7 +207,7 @@ const BundleOrderModal: React.FC<BundleOrderModalProps> = ({
                                 <div className="flex items-center">
                                     <div className="relative h-12 w-12 bg-white rounded-md overflow-hidden flex-shrink-0 border border-gray-200 shadow-sm">
                                         <Image
-                                            src={product.image || '/placeholder.jpg'}
+                                            src={getImageUrl(product.image) || '/placeholder.jpg'}
                                             alt={product.name}
                                             fill
                                             className="object-cover"

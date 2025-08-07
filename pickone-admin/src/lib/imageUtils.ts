@@ -1,5 +1,5 @@
 /**
- * Utility functions for handling image URLs
+ * Utility functions for handling image URLs in Admin Panel
  */
 
 /**

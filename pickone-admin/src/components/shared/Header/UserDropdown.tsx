@@ -7,6 +7,7 @@ import React from 'react';
 import { FaAngleDown } from 'react-icons/fa';
 import { useAppSelector } from '@/redux/hooks';
 import { Popover, PopoverContent, PopoverTrigger } from '../../ui/popover';
+import { getImageUrl } from '@/lib/imageUtils';
 
 interface DropdownProps {
     handleLogout: () => void;
@@ -20,7 +21,7 @@ const Dropdown: React.FC<DropdownProps> = ({ handleLogout }) => {
             <PopoverTrigger className="flex space-x-4 items-center justify-center border-2 rounded-[8px] border-slate-400 px-3 py-1.5">
                 <Image
                     className="rounded-full h-8 w-8"
-                    src={user?.profile_image || avatar}
+                    src={user?.profile_image ? getImageUrl(user.profile_image) : avatar}
                     height={32}
                     width={32}
                     alt="user"

@@ -6,6 +6,7 @@ import { useCartAnimation } from '@/components/ui/CartAnimation/CartAnimationPro
 import { calculatePrice } from '@/lib/calculatePrice';
 import { Product } from '@/app/product/types';
 import Image from 'next/image';
+import { getImageUrl } from '@/lib/imageUtils';
 
 const ProductCard: FC<Product> = ({
     id,
@@ -137,7 +138,7 @@ const ProductCard: FC<Product> = ({
 
                     <div className="absolute inset-0 overflow-hidden">
                         <Image
-                            src={thumbnail}
+                            src={getImageUrl(thumbnail)}
                             alt={title}
                             className={`w-full h-[300px] object-cover transition-all duration-500 ${
                                 imageLoaded ? 'opacity-100' : 'opacity-0'

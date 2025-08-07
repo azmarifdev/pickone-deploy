@@ -3,6 +3,7 @@ import Image from 'next/image';
 import ProductQuantity from './ProductQuantity';
 import { Product } from '@/app/product/types';
 import { calculatePrice } from '@/lib/calculatePrice';
+import { getImageUrl } from '@/lib/imageUtils';
 
 interface ProductSummaryProps {
     product: Product;
@@ -41,7 +42,7 @@ const ProductSummary: React.FC<ProductSummaryProps> = ({
                 <div className="flex items-center py-2">
                     <div className="relative h-20 w-20 bg-gray-100 rounded overflow-hidden flex-shrink-0">
                         <Image
-                            src={product.thumbnail || 'https://dummyimage.com/150'}
+                            src={getImageUrl(product.thumbnail) || 'https://dummyimage.com/150'}
                             alt={product.title}
                             fill
                             className="object-cover"
