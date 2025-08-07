@@ -60,7 +60,11 @@ const ProductTable = ({ data }: { data: any[] }) => {
                                     <div className="flex-shrink-0 w-12 h-12">
                                         {product?.images?.[0] ? (
                                             <Image
-                                                src={getImageUrl(product.images[0])}
+                                                src={getImageUrl(
+                                                    typeof product.images[0] === 'string'
+                                                        ? product.images[0]
+                                                        : product.images[0]?.url || product.images[0],
+                                                )}
                                                 alt={product.title}
                                                 width={48}
                                                 height={48}

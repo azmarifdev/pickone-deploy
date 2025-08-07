@@ -7,8 +7,8 @@
  * Handles both relative and absolute URLs
  */
 export const getImageUrl = (imageUrl: string | undefined | null): string => {
-    // Return empty string for null/undefined
-    if (!imageUrl || imageUrl.trim() === '') {
+    // Return empty string for null/undefined or non-string values
+    if (!imageUrl || typeof imageUrl !== 'string' || imageUrl.trim() === '') {
         return '';
     }
 
@@ -17,8 +17,8 @@ export const getImageUrl = (imageUrl: string | undefined | null): string => {
         return imageUrl;
     }
 
-    // Get base URL from environment
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '';
+    // Get base URL from environment with production fallback
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://server.azmarif.dev';
 
     // Clean up URL paths
     const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
