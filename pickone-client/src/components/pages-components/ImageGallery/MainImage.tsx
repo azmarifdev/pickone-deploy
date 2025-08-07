@@ -1,6 +1,7 @@
-import React from "react";
-import Image from "next/image";
-import {MousePosition} from "./types";
+import React from 'react';
+import Image from 'next/image';
+import { MousePosition } from './types';
+import { getImageUrl } from '@/lib/imageUtils';
 
 interface MainImageProps {
     images: { _id: string; url: string }[];
@@ -37,7 +38,7 @@ const MainImage: React.FC<MainImageProps> = ({
     return (
         <div
             className={`relative overflow-hidden min-h-[200px] sm:min-h-[280px] md:min-h-[320px] lg:min-h-[380px] bg-white rounded-xl border border-gray-100 shadow-sm ${
-                isZoomed ? "cursor-zoom-out" : "cursor-zoom-in"
+                isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'
             }`}
             onMouseMove={onImageZoom}
             onClick={onZoomToggle}
@@ -54,20 +55,15 @@ const MainImage: React.FC<MainImageProps> = ({
                         className="gallery-slide absolute top-0 left-0 w-full h-full transition-transform duration-150 ease-in-out">
                         <div className="relative w-full h-full flex items-center justify-center p-4">
                             {isZoomed && activeIndex === index ? (
-                                <ZoomedImage
-                                    image={image}
-                                    mousePosition={mousePosition}
-                                />
+                                <ZoomedImage image={image} mousePosition={mousePosition} />
                             ) : (
                                 <Image
-                                    src={image.url}
+                                    src={getImageUrl(image.url)}
                                     alt={image._id}
                                     fill
                                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 40vw"
                                     className={`object-contain transition-transform duration-150 ${
-                                        !isZoomed && !isMobile
-                                            ? "hover:scale-105"
-                                            : ""
+                                        !isZoomed && !isMobile ? 'hover:scale-105' : ''
                                     }`}
                                     priority={index === 0}
                                 />
@@ -94,27 +90,20 @@ const MainImage: React.FC<MainImageProps> = ({
 };
 
 interface ZoomedImageProps {
-    image: {_id: string; url: string};
+    image: { _id: string; url: string };
     mousePosition: MousePosition;
 }
 
-const ZoomedImage: React.FC<ZoomedImageProps> = ({image, mousePosition}) => {
+const ZoomedImage: React.FC<ZoomedImageProps> = ({ image, mousePosition }) => {
     return (
         <div className="absolute inset-0 bg-white">
             <div
                 className="w-[150%] h-[150%] absolute"
                 style={{
                     transform: `translate(-${mousePosition.x}%, -${mousePosition.y}%)`,
-                    transformOrigin: "center",
+                    transformOrigin: 'center',
                 }}>
-                <Image
-                    src={image.url}
-                    alt={image._id}
-                    fill
-                    sizes="200vw"
-                    className="object-contain"
-                    priority
-                />
+                <Image src={getImageUrl(image.url)} alt={image._id} fill sizes="200vw" className="object-contain" priority />
             </div>
         </div>
     );
@@ -123,11 +112,7 @@ const ZoomedImage: React.FC<ZoomedImageProps> = ({image, mousePosition}) => {
 const ZoomIndicator: React.FC = () => {
     return (
         <div className="absolute bottom-4 right-4 hidden md:flex items-center text-xs text-gray-700 bg-white/80 px-2 py-1 rounded-md backdrop-blur-sm">
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-3 w-3 mr-1"
-                viewBox="0 0 20 20"
-                fill="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" viewBox="0 0 20 20" fill="currentColor">
                 <path d="M5 8a1 1 0 011-1h1V6a1 1 0 012 0v1h1a1 1 0 110 2H9v1a1 1 0 11-2 0V9H6a1 1 0 01-1-1z" />
                 <path
                     fillRule="evenodd"
@@ -145,16 +130,12 @@ interface ExitZoomButtonProps {
     onClick: (e: React.MouseEvent) => void;
 }
 
-const ExitZoomButton: React.FC<ExitZoomButtonProps> = ({onClick}) => {
+const ExitZoomButton: React.FC<ExitZoomButtonProps> = ({ onClick }) => {
     return (
         <button
             onClick={onClick}
             className="absolute top-4 right-4 bg-white/80 text-gray-700 rounded-full p-2 shadow-md backdrop-blur-sm z-10">
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path
                     fillRule="evenodd"
                     d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"

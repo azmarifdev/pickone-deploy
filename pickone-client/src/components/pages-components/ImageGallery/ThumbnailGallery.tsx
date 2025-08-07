@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import { getImageUrl } from '@/lib/imageUtils';
 
 interface ThumbnailGalleryProps {
     images: { _id: string; url: string }[];
@@ -67,7 +68,7 @@ const Thumbnail: React.FC<ThumbnailProps> = ({ image, index, isActive, onClick, 
             onClick={() => onClick(index)}>
             <div className="relative w-full h-full group">
                 <Image
-                    src={image.url}
+                    src={getImageUrl(image.url)}
                     alt={`Thumbnail for ${image._id}`}
                     fill
                     sizes={isMobile ? '48px' : '64px'}

@@ -11,6 +11,7 @@ import { useCart } from '@/components/context/CartContext';
 import useCategory from '@/hooks/useCategory';
 import { calculatePrice } from '@/lib/calculatePrice';
 import { config } from '@/config/env';
+import { getImageUrl } from '@/lib/imageUtils';
 // Remove the direct import of useSearchParams
 
 // Add interface for search results
@@ -467,7 +468,7 @@ const Navbar: FC = () => {
                                                     <div className="flex items-center space-x-4">
                                                         <div className="relative w-10 h-10 rounded overflow-hidden">
                                                             <Image
-                                                                src={product.thumbnail}
+                                                                src={getImageUrl(product.thumbnail)}
                                                                 alt={product.title}
                                                                 fill
                                                                 className="object-cover rounded"
@@ -605,7 +606,7 @@ const Navbar: FC = () => {
                                                 <div className="flex items-center space-x-4">
                                                     <div className="relative w-10 h-10 rounded overflow-hidden">
                                                         <Image
-                                                            src={product.thumbnail}
+                                                            src={getImageUrl(product.thumbnail)}
                                                             alt={product.title}
                                                             fill
                                                             className="object-cover rounded"

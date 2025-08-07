@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import { getImageUrl } from '@/lib/imageUtils';
 
 interface CartItemProps {
     id: string;
@@ -42,7 +43,7 @@ const CartItem: React.FC<CartItemProps> = ({
             {/* Product Image with Enhanced Shadow */}
             <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg shadow-sm relative">
                 <Image
-                    src={image}
+                    src={getImageUrl(image)}
                     alt={name}
                     className="object-cover transition-transform hover:scale-105"
                     fill

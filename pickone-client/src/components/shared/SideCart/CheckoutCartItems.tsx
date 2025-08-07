@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import { getImageUrl } from '@/lib/imageUtils';
 
 interface CartItem {
     id: string;
@@ -31,7 +32,7 @@ const CheckoutCartItems: React.FC<CheckoutCartItemsProps> = ({ cartItems, update
                     className="bg-gradient-to-r from-gray-50 to-blue-50 p-3 rounded-lg border border-blue-100 mb-3 shadow-sm">
                     <div className="flex items-center">
                         <div className="relative h-16 w-16 bg-white rounded-md overflow-hidden flex-shrink-0 border border-gray-200 shadow-sm">
-                            <Image src={item.image} alt={item.name} fill className="object-cover" />
+                            <Image src={getImageUrl(item.image)} alt={item.name} fill className="object-cover" />
                         </div>
                         <div className="ml-3 flex-1">
                             <h3 className="font-medium text-sm line-clamp-1 text-gray-800">{item.name}</h3>

@@ -8,6 +8,7 @@ import { trackPurchase as trackMetaPurchase } from '@/lib/meta-pixel';
 import { trackPurchase as trackGTMPurchase } from '@/lib/gtm';
 import { trackPurchase as trackServerPurchase } from '@/lib/server-tracking';
 import { config } from '@/config/env';
+import { getImageUrl } from '@/lib/imageUtils';
 
 interface ModalProps {
     isOpen: boolean;
@@ -442,7 +443,7 @@ const Modal: React.FC<ModalProps> = ({
                                 <div className="flex items-center">
                                     <div className="relative h-16 w-16 bg-white rounded-md overflow-hidden flex-shrink-0 border border-gray-200 shadow-sm">
                                         <Image
-                                            src={product?.thumbnail}
+                                            src={getImageUrl(product?.thumbnail)}
                                             alt={product?.title}
                                             fill
                                             className="object-cover"
@@ -476,7 +477,7 @@ const Modal: React.FC<ModalProps> = ({
                                                         </span>
                                                     ))}
 
-                                                   {/* Free shipping Tag */}
+                                                {/* Free shipping Tag */}
                                                 {/* {isFreeShipping && (
                                                     <span className="bg-emerald-100 text-emerald-700 text-xs px-1.5 py-0.5 rounded-full font-medium">
                                                         Free Shipping
@@ -518,7 +519,7 @@ const Modal: React.FC<ModalProps> = ({
                                                 }`}>
                                                 <div className="relative h-12 w-12 bg-white rounded-md overflow-hidden flex-shrink-0 border border-gray-200 shadow-sm">
                                                     <Image
-                                                        src={bundleProduct?.image}
+                                                        src={getImageUrl(bundleProduct?.image)}
                                                         alt={bundleProduct?.name}
                                                         fill
                                                         className="object-cover"

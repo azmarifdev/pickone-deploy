@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { getImageUrl } from '@/lib/imageUtils';
 
 interface Position {
     x: number;
@@ -31,12 +32,7 @@ const CartAnimation: React.FC<CartAnimationProps> = ({
     const [showSuccessIcon, setShowSuccessIcon] = useState<boolean>(false);
 
     // Process image URL to ensure it's absolute
-    const processedImageUrl =
-        productImage && productImage.trim() !== ''
-            ? productImage.startsWith('http')
-                ? productImage
-                : `${process.env.NEXT_PUBLIC_API_KEY || ''}${productImage}`
-            : '';
+    const processedImageUrl = getImageUrl(productImage);
 
     useEffect(() => {
         if (!isActive) return;
