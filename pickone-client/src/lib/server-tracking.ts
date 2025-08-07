@@ -11,8 +11,12 @@ export const sendServerTrackingEvent = async (data: any) => {
         // Get current URL for event source URL
         const sourceUrl = typeof window !== 'undefined' ? window.location.href : '';
 
+        // Use server domain for API calls in production
+        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://server.azmarif.dev';
+        const endpoint = `${baseUrl}/api/tracking/event`;
+
         // Send the event data to the server endpoint
-        const response = await fetch('/api/tracking/event', {
+        const response = await fetch(endpoint, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
