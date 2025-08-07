@@ -19,13 +19,11 @@ const Dropdown: React.FC<DropdownProps> = ({ handleLogout }) => {
     return (
         <Popover>
             <PopoverTrigger className="flex space-x-4 items-center justify-center border-2 rounded-[8px] border-slate-400 px-3 py-1.5">
-                <Image
-                    className="rounded-full h-8 w-8"
-                    src={user?.profile_image ? getImageUrl(user.profile_image) : avatar}
-                    height={32}
-                    width={32}
-                    alt="user"
-                />
+                {user?.profile_image ? (
+                    <img className="rounded-full h-8 w-8 object-cover" src={getImageUrl(user.profile_image)} alt="user" />
+                ) : (
+                    <Image className="rounded-full h-8 w-8" src={avatar} height={32} width={32} alt="user" />
+                )}
                 <div className="flex space-x-2 items-center justify-center">
                     <h3 className="font-onest text-sm capitalize">{user?.name}</h3>
                     <FaAngleDown className="text-black text-base" />

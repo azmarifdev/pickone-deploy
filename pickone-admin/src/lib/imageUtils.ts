@@ -28,6 +28,11 @@ export const getImageUrl = (imageUrl: string | undefined | null): string => {
     // Replace "server-tmp/tmp/" with "server-tmp/" to fix old database records
     cleanImageUrl = cleanImageUrl.replace('/server-tmp/tmp/', '/server-tmp/');
 
+    // 🔧 FIX: Ensure proper nginx route for file serving
+    if (cleanImageUrl.startsWith('/tmp/') && !cleanImageUrl.startsWith('/server-tmp/')) {
+        cleanImageUrl = cleanImageUrl.replace('/tmp/', '/server-tmp/');
+    }
+
     return `${cleanBaseUrl}${cleanImageUrl}`;
 };
 
