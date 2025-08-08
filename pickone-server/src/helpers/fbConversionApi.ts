@@ -121,9 +121,20 @@ class FacebookConversionApi {
 
       // Clear the contents array after sending the event
       const result = eventRequest.execute().then(
-         (response: fb.EventResponse) => response,
+         (response: fb.EventResponse) => {
+            if (this.debug) {
+               console.log('Facebook Conversion API Success:', response);
+            }
+            return response;
+         },
          (error: Error) => {
-            console.error('Facebook Conversion API Error:', error);
+            console.error('Facebook Conversion API Error:', {
+               error: error.message,
+               eventName,
+               sourceUrl,
+               pixel_id: this.pixel_id,
+               access_token: this.access_token ? 'Set' : 'Missing',
+            });
             throw error;
          }
       );

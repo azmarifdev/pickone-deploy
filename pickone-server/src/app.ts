@@ -9,6 +9,9 @@ import routes from './app/routes';
 
 const app: Application = express();
 
+// Trust proxy for getting real IP addresses through nginx
+app.set('trust proxy', true);
+
 // Enable CORS
 app.use(cors(corsOptionsDelegate));
 app.options('*', cors(corsOptionsDelegate));

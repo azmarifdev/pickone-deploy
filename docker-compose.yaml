@@ -8,6 +8,7 @@ services:
             dockerfile: Dockerfile
             args:
                 NEXT_PUBLIC_BASE_URL: https://server.azmarif.dev
+                NEXT_PUBLIC_API_BASE_URL: https://server.azmarif.dev
                 NEXT_PUBLIC_GTM_ID: GTM-T6788FFC
                 NEXT_PUBLIC_META_PIXEL_ID: 996938129264024
         ports:

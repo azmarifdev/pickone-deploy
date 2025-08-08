@@ -12,17 +12,36 @@ const trackEvent = catchAsync(async (req: Request, res: Response) => {
    const { eventName, products, value, eventData, searchTerm, filterData } =
       req.body;
 
+   // Validate required Facebook API credentials
+   if (!config.facebook.access_token || !config.facebook.pixel_id) {
+      console.error('Facebook API credentials missing');
+      return sendResponse(res, {
+         statusCode: StatusCodes.OK,
+         success: true,
+         message: 'Event received (tracking disabled)',
+      });
+   }
+
    const sourceUrl =
       req.body.sourceUrl ||
       req.get('Referer') ||
       `${req.protocol}://${req.get('host')}${req.originalUrl}`;
 
    try {
+      // Get client IP address properly through nginx proxy
+      const clientIpAddress =
+         req.headers['x-forwarded-for']?.toString().split(',')[0] ||
+         req.headers['x-real-ip']?.toString() ||
+         req.connection.remoteAddress ||
+         req.socket.remoteAddress ||
+         req.ip ||
+         '';
+
       // Initialize Facebook Conversion API
       const conversionApi = new FacebookConversionApi({
          access_token: config.facebook.access_token,
          pixel_id: config.facebook.pixel_id,
-         clientIpAddress: req.ip || req.connection.remoteAddress || '',
+         clientIpAddress: clientIpAddress.trim(),
          clientUserAgent: req.headers['user-agent'] || '',
          fbp: req.cookies?._fbp || null,
          fbc: req.cookies?._fbc || null,
